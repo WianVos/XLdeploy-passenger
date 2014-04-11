@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<synthetic xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd" xmlns="http://www.xebialabs.com/deployit/synthetic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+
+     <type type="passenger.ApacheHttpdServer" extends="generic.Container"
+          description="Apache HTTPD web server">
+        <!-- unhide the start, stop etc. commands -->
+        <property name="startScript" default="passenger/apache/start" hidden="false" description="The command to start Apache. Arguments containing spaces are not supported"/>
+        <property name="stopScript" default="passenger/apache/stop" hidden="false" description="The command to stop Apache. Arguments containing spaces are not supported"/>
+        <property name="restartScript" default="&lt;#assign restart=(container.restartCommand)!''&gt;&lt;#if restart != ''&gt;passenger/apache/restart&lt;#else&gt;passenger/apache/stopstart&lt;/#if&gt;"  hidden="true" description="The command to restart or reload Apache. If left blank, the sequence 'stop, start' is used. Arguments containing spaces are not supported" />
+        <property name="startCommand" hidden="true" required="false" description="The command to start Apache. Arguments containing spaces are not supported" />
+        <property name="startWaitTime" kind="integer" default="10" description="Duration (in secs) to wait after the start server step has been executed"/>
+        <property name="stopCommand"  hidden="true" required="false" description="The command to stop Apache. Arguments containing spaces are not supported" />
+        <property name="stopWaitTime" kind="integer" default="10" description="Duration (in secs) to wait after the stop server step has been executed"/>
+        <property name="restartCommand" required="false" hidden="false" description="The command to restart Apache. If left blank, reload command is used. If reload command is also blank than the sequence 'stop, start' is used. Arguments containing spaces are not supported" />
+        <property name="restartWaitTime" kind="integer" default="10" description="Duration (in secs) to wait after the restart server step has been executed"/>
+        <property name="defaultDocumentRoot" description="The directory in which document roots for virtual hosts should be created. Web content deployed without a virtual host will also be copied into this directory" default="/var/www"/>
+        <property name="passengerAppRoot" description="the base dir where passenger apps wil be copied to" default="/var/www"/>
+        <property name="passengerRubyVersion" description="the rubyversion for this container" default="ruby-1.9.3-p448"/>
+        <property name="httpProxyUrl" description="possible proxy setting to use for contacting rubygems.org" hidden="false" required="false" />
+        <property name="configurationFragmentDirectory" description="The directory into which Apache configuration files (for virtual host definitions) should be written" default="/etc/httpd/conf.d" />
+        <method name="start" description="Start Apache"/>
+        <method name="stop" description="Stop Apache"/>
+        <method name="restart" description="Restart Apache"/>
+    </type>
+
+
+
+    <type type="passenger.ZippedRackApp" extends="generic.Archive">
+        <property name="scanPlaceholders" hidden="true" required="true" default="true" kind="boolean"/>
+        <property name="textFileNamesRegex" hidden="true" required="true" default=".+\.(cfg | conf | config | ini | properties | props | yaml | yml | ru )"/>
+    </type>
+
+    <type type="passenger.RackApp" extends="generic.ExecutedScriptWithDerivedArtifact" container-type="passenger.ApacheHttpdServer" deployable-type="passenger.ZippedRackApp" >
+        <property name="targetPath" default="${deployed.container.passengerAppRoot}/${deployed.name}" hidden="true"/>
+        <property name="createScript" default="passenger/rack/install.sh" hidden="true"/>
+        <property name="destroyScript" default="passenger/rack/uninstall.sh" hidden="true"/>
+	<property name="templateClasspathResources" kind="set_of_string" default="passenger/rack/apache_config.conf,passenger/rack/gemrc" hidden="true" />
+        <property name="port" default="80" kind="string" description="port for the application to listen on" hidden="false" />
+        <property name="contentRoot" default="/" kind="string" description="contentroot for the application to listen on" hidden="false" />
+        <property name="useBundler" kind="boolean" description="use bundler to install gems supplied in the gemfile and vendor/cache" default="true"/>
+        <property name="restartRequired" kind="boolean" description="restart httpd after deployment" default="true"/>
+    </type>    
+
+</synthetic>
