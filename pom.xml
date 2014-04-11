@@ -11,7 +11,7 @@
         <directory>src/main/resources</directory>
       </resource>
       <resource>
-        <directory>src/main/passenger</directory>
+        <directory>src/main/scripts</directory>
       </resource>
     </resources>
   </build>

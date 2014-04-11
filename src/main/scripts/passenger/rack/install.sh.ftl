@@ -25,5 +25,7 @@ ls ${step.remoteWorkingDirectory.path}
 /bin/cp ${step.remoteWorkingDirectory.path}/gemrc.sh ~/.gemrc
 
 <#if deployed.useBundler == true >  
+ echo "${deployed.container.passengerRubyVersion}" ${deployed.targetPath}/.ruby_version 
+ echo "${deployed.name}" ${deployed.targetPath}/.ruby_gemset 
  /usr/local/rvm/bin/rvm ${deployed.container.passengerRubyVersion} exec bundle install 
 </#if>
